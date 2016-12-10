@@ -1,6 +1,6 @@
-var cheerio = require('cheerio');
 var express = require('express');
 var http = require('http');
+var jsdom = require('jsdom');
 
 var app = express();
 
@@ -14,35 +14,39 @@ app.get('/', function (req, res) {
   http.get(path, function(httpRes) {
     var error;
     if (httpRes.statusCode !== 200) {
-      error = "Request Failed.\n Status Code: " + httpRes.statusCode;
+      error = "Request Failed. Status Code: " + httpRes.statusCode;
       console.log(error);
       res.status(500).send(error);
+      return;
     }
 
-    var html = '';
-    httpRes.on('data', function(chunk) {
+    var html = "";
+    httpRes.on("data", function(chunk) {
       html += chunk;
     });
 
-    httpRes.on('end', function() {
+    httpRes.on("end", function() {
       handleHTML(html, res);
     });
-  }).on('error', function(e) {
+  }).on("error", function(e) {
     console.log(e.message);
     res.status(500).send(e.message);
   });
 });
 
 function handleHTML(html, res) {
-  var $ = cheerio.load(html);
+  var document = jsdom.jsdom(html);
+  var window = document.defaultView;
+
   var fonts = [];
 
-  $('*').each(function() {
-    var font = $(this).css('font-family');
+  var elems = document.body.getElementsByTagName("*");
+  for (var i = 0; i < elems.length; i++) {
+    var font =  window.getComputedStyle(elems[i]).getPropertyValue("font-family");
     if (font) {
-      fonts.push(font)
+      fonts.push(font);
     }
-  });
+  };
 
   res.send(fonts);
 }
