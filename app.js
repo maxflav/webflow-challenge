@@ -1,3 +1,4 @@
+var cheerio = require('cheerio');
 var express = require('express');
 var http = require('http');
 
@@ -24,13 +25,27 @@ app.get('/', function (req, res) {
     });
 
     httpRes.on('end', function() {
-      res.send(html);
+      handleHTML(html, res);
     });
   }).on('error', function(e) {
     console.log(e.message);
     res.status(500).send(e.message);
   });
 });
+
+function handleHTML(html, res) {
+  var $ = cheerio.load(html);
+  var fonts = [];
+
+  $('*').each(function() {
+    var font = $(this).css('font-family');
+    if (font) {
+      fonts.push(font)
+    }
+  });
+
+  res.send(fonts);
+}
 
 app.listen(3000, function () {
   console.log("Listening on port 3000");
