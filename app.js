@@ -51,17 +51,17 @@ function handleHTML(html, res) {
   });
   var window = document.defaultView;
 
-  var fonts = [];
+  var fonts = {};
 
   var elems = document.body.getElementsByTagName("*");
   for (var i = 0; i < elems.length; i++) {
     var font =  window.getComputedStyle(elems[i]).getPropertyValue("font-family");
     if (font) {
-      fonts.push(font);
+      fonts[font] = 1;
     }
   };
 
-  res.send(fonts);
+  res.send(Object.keys(fonts));
 }
 
 app.listen(3000, function () {
