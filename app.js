@@ -9,13 +9,12 @@ var app = express();
 app.get('/', function (req, res) {
   var path = req.query.path;
   if (!path) {
-    res.status(400).send('"path" GET param has no value');
+    res.status(400).send({error: '"path" GET param has no value'});
     return;
   }
   var protocol = url.parse(path).protocol;
-  console.log(protocol);
   if (protocol != "http:" && protocol != "https:") {
-    res.status(400).send("Invalid path protocol, must be http or https");
+    res.status(400).send({error: "Invalid path protocol, must be http or https"});
     return;
   }
 
@@ -25,7 +24,7 @@ app.get('/', function (req, res) {
     if (httpRes.statusCode !== 200) {
       error = "Request Failed. Status Code: " + httpRes.statusCode;
       console.log(error);
-      res.status(500).send(error);
+      res.status(500).send({error: error});
       return;
     }
 
@@ -39,7 +38,7 @@ app.get('/', function (req, res) {
     });
   }).on("error", function(e) {
     console.log(e.message);
-    res.status(500).send(e.message);
+    res.status(500).send({error: e.message});
   });
 });
 
@@ -61,7 +60,7 @@ function handleHTML(html, res) {
     }
   };
 
-  res.send(Object.keys(fonts));
+  res.send({fonts: Object.keys(fonts)});
 }
 
 app.listen(3000, function () {
