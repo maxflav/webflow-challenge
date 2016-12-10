@@ -1,6 +1,8 @@
-var express = require('express');
-var http = require('http');
-var jsdom = require('jsdom');
+var express = require("express");
+var http = require("http");
+var https = require("https");
+var jsdom = require("jsdom");
+var url = require("url");
 
 var app = express();
 
@@ -10,8 +12,15 @@ app.get('/', function (req, res) {
     res.status(400).send('"path" GET param has no value');
     return;
   }
+  var protocol = url.parse(path).protocol;
+  console.log(protocol);
+  if (protocol != "http:" && protocol != "https:") {
+    res.status(400).send("Invalid path protocol, must be http or https");
+    return;
+  }
 
-  http.get(path, function(httpRes) {
+  var getMethod = url.parse(path).protocol == "http:" ? http.get : https.get;
+  getMethod(path, function(httpRes) {
     var error;
     if (httpRes.statusCode !== 200) {
       error = "Request Failed. Status Code: " + httpRes.statusCode;
@@ -35,7 +44,11 @@ app.get('/', function (req, res) {
 });
 
 function handleHTML(html, res) {
-  var document = jsdom.jsdom(html);
+  var document = jsdom.jsdom(html, {
+    features: {
+      FetchExternalResources: ["css", "link"]
+    }
+  });
   var window = document.defaultView;
 
   var fonts = [];
