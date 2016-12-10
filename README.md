@@ -1,7 +1,7 @@
 # webflow-challenge
 Screener question for Webflow interview.
 
-To start the server, run with `node app.js`.
+To start the server, run with `node app.js`. It will run on port 3000.
 
 # API
 Send a GET request to `/?path=[URL]` where `[URL]` is the input URL.
